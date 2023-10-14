@@ -1,11 +1,19 @@
 package main
 
-import "os"
+import "net/http"
+
 func main() {
-
-		_, err := os.Open("user.txt")
-		if err != nil {
-			println("err：你为什么不输入账号密码！！ (＃｀д´)ﾉ")
-		}
-
+	mux := http.NewServeMux()
+	files := http.FileServer(http.Dir("./public"))
+	mux.Handle("/static/", http.StripPrefix("/static/", files))
+	mux.HandleFunc("/regReceive", regReceive)
+	mux.HandleFunc("/reg", reg)
+	mux.HandleFunc("/", login)
+	mux.HandleFunc("/logReceive", logReceive)
+	server := &http.Server{
+		Addr:    "0.0.0.0:8080",
+		Handler: mux,
 	}
+	server.ListenAndServe()
+
+}
